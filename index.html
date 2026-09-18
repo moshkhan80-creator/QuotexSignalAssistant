@@ -1,23 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quotex Signal Assistant</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotex Signal Assistant</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+.card {
+  background: #222;
+  padding: 25px;
+  border-radius: 15px;
+  margin-top: 25px;
+}
+
+button {
+  width: 100%;
+  padding: 16px;
+  font-size: 20px;
+  border: none;
+  border-radius: 10px;
+  background: #444;
+  color: white;
+  margin-top: 15px;
+}
+
+#signal {
+  font-size: 32px;
+  margin: 25px 0;
+}
+
+.info {
+  font-size: 17px;
+  line-height: 1.6;
+}
+</style>
 </head>
 
 <body>
-  <h1>Quotex Signal Assistant</h1>
-  <p>1 Minute Signal Assistant</p>
 
-  <button onclick="showSignal()">GET SIGNAL</button>
+<h1>Quotex Signal Assistant</h1>
 
-  <h2 id="signal">Waiting...</h2>
+<div class="card">
 
-  <script>
-    function showSignal() {
-      document.getElementById("signal").innerText =
-        "Signal system ready";
-    }
-  </script>
+  <div id="signal">WAITING</div>
+
+  <div class="info">
+    Timeframe: 1 Minute<br>
+    RSI: 14<br>
+    Overbought: 70<br>
+    Oversold: 30
+  </div>
+
+  <button onclick="checkSignal()">CHECK SIGNAL</button>
+
+</div>
+
+<script>
+
+function checkSignal() {
+
+  document.getElementById("signal").innerHTML =
+    "WAITING FOR DATA";
+
+}
+
+</script>
+
 </body>
 </html>
