@@ -3,98 +3,21 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quotex Signal Assistant</title>
-
 <style>
-body{
-  margin:0;
-  background:#101318;
-  color:white;
-  font-family:Arial,sans-serif;
-  padding:15px;
-}
-
-h1{
-  text-align:center;
-  font-size:25px;
-  margin-bottom:5px;
-}
-
-.subtitle{
-  text-align:center;
-  color:#aaa;
-  margin-bottom:20px;
-}
-
-.box{
-  background:#1b2028;
-  border-radius:12px;
-  padding:15px;
-  margin-bottom:12px;
-}
-
-label{
-  display:block;
-  margin-bottom:7px;
-  font-weight:bold;
-}
-
-select{
-  width:100%;
-  padding:12px;
-  background:#292f38;
-  color:white;
-  border:1px solid #555;
-  border-radius:8px;
-  font-size:16px;
-}
-
-button{
-  width:100%;
-  padding:16px;
-  margin-top:10px;
-  border:0;
-  border-radius:10px;
-  font-size:19px;
-  font-weight:bold;
-  background:#3b82f6;
-  color:white;
-}
-
-#result{
-  text-align:center;
-  padding:20px;
-  border-radius:12px;
-  margin-top:15px;
-  font-size:25px;
-  font-weight:bold;
-}
-
-.wait{
-  background:#3a3a22;
-  color:#ffd84d;
-}
-
-.call{
-  background:#123d25;
-  color:#4cff91;
-}
-
-.put{
-  background:#481d25;
-  color:#ff6878;
-}
-
-.noTrade{
-  background:#302035;
-  color:#d89cff;
-}
-
-.small{
-  text-align:center;
-  color:#aaa;
-  font-size:13px;
-  margin-top:15px;
-}
+body{margin:0;background:#101318;color:white;font-family:Arial;padding:15px}
+h1{text-align:center;font-size:24px}
+.subtitle{text-align:center;color:#aaa;margin-bottom:18px}
+.box{background:#1b2028;border-radius:12px;padding:15px;margin-bottom:12px}
+label{display:block;margin:12px 0 6px;font-weight:bold}
+select{width:100%;padding:12px;background:#292f38;color:white;border:1px solid #555;border-radius:8px;font-size:16px}
+button{width:100%;padding:16px;margin-top:8px;border:0;border-radius:10px;font-size:19px;font-weight:bold;background:#3478f6;color:white}
+#result{text-align:center;padding:22px;border-radius:12px;margin-top:15px;font-size:26px;font-weight:bold}
+.wait{background:#3a3520;color:#ffd84d}
+.call{background:#123d25;color:#4cff91}
+.put{background:#481d25;color:#ff6878}
+.noTrade{background:#302035;color:#d89cff}
+.reason{text-align:center;color:#ccc;margin-top:10px;font-size:15px}
+.small{text-align:center;color:#888;font-size:12px;margin-top:18px}
 </style>
 </head>
 
@@ -123,6 +46,13 @@ button{
 <option value="down">DOWN</option>
 </select>
 
+<label>Keltner / EMA</label>
+<select id="keltner">
+<option value="up">UP</option>
+<option value="down">DOWN</option>
+<option value="neutral">NEUTRAL</option>
+</select>
+
 </div>
 
 <div class="box">
@@ -147,98 +77,120 @@ button{
 <option value="late">LATE</option>
 </select>
 
-</div>
-
-<div class="box">
-
-<label>Keltner / EMA</label>
-<select id="keltner">
-<option value="up">UP</option>
-<option value="down">DOWN</option>
-<option value="neutral">NEUTRAL</option>
-</select>
-
-<label>RSI</label>
+<label>RSI 14</label>
 <select id="rsi">
-<option value="bull">BULLISH</option>
-<option value="bear">BEARISH</option>
-<option value="neutral">NEUTRAL</option>
+<option value="above70">ABOVE 70</option>
+<option value="50to70">50–70</option>
+<option value="30to50">30–50</option>
+<option value="below30">BELOW 30</option>
 </select>
 
 </div>
 
 <button onclick="checkSignal()">CHECK ENTRY</button>
 
-<div id="result" class="wait">
-WAIT
-</div>
+<div id="result" class="wait">⚪ WAIT</div>
+<div id="reason" class="reason">Waiting for setup</div>
 
 <div class="small">
-Signal rules are for testing only. They do not guarantee a winning trade.
+Testing assistant only. No signal can guarantee a winning trade.
 </div>
 
 <script>
 
 function checkSignal(){
 
-let st11=document.getElementById("st11").value;
-let st10=document.getElementById("st10").value;
-let st12=document.getElementById("st12").value;
+const st11=document.getElementById("st11").value;
+const st10=document.getElementById("st10").value;
+const st12=document.getElementById("st12").value;
+const k=document.getElementById("keltner").value;
+const pull=document.getElementById("pullback").value;
+const candle=document.getElementById("candle").value;
+const move=document.getElementById("move").value;
+const rsi=document.getElementById("rsi").value;
 
-let pullback=document.getElementById("pullback").value;
-let candle=document.getElementById("candle").value;
-let move=document.getElementById("move").value;
-
-let keltner=document.getElementById("keltner").value;
-let rsi=document.getElementById("rsi").value;
-
-let result=document.getElementById("result");
+const result=document.getElementById("result");
+const reason=document.getElementById("reason");
 
 result.className="wait";
+result.innerHTML="⚪ WAIT";
+reason.innerHTML="Checking conditions...";
 
-if(
+/* MOVE FILTER */
+if(move==="late"){
+ result.className="noTrade";
+ result.innerHTML="⛔ NO TRADE";
+ reason.innerHTML="Move is already too far extended.";
+ return;
+}
+
+/* CALL */
+const callTrend =
 st11==="up" &&
 st10==="up" &&
-st12==="up" &&
-pullback==="yes" &&
-candle==="bull" &&
-move==="beginning" &&
-keltner==="up"
-){
+st12==="up";
 
-result.className="call";
-result.innerHTML="🟢 CALL<br><span style='font-size:18px'>ENTRY: NEXT CANDLE</span>";
-return;
+const callMomentum =
+k==="up" &&
+pull==="yes" &&
+candle==="bull";
 
-}
-
-if(
+/* PUT */
+const putTrend =
 st11==="down" &&
 st10==="down" &&
-st12==="down" &&
-pullback==="yes" &&
-candle==="bear" &&
-move==="beginning" &&
-keltner==="down"
-){
+st12==="down";
 
-result.className="put";
-result.innerHTML="🔴 PUT<br><span style='font-size:18px'>ENTRY: NEXT CANDLE</span>";
-return;
+const putMomentum =
+k==="down" &&
+pull==="yes" &&
+candle==="bear";
 
+/* RSI is a FILTER, not the trigger */
+const callRSI =
+rsi==="50to70" || rsi==="30to50" || rsi==="below30";
+
+const putRSI =
+rsi==="30to50" || rsi==="50to70" || rsi==="above70";
+
+/* FINAL CALL */
+if(callTrend && callMomentum && move==="beginning" && callRSI){
+
+ result.className="call";
+ result.innerHTML="🟢 CALL<br><span style='font-size:18px'>ENTRY: NEXT CANDLE</span>";
+ reason.innerHTML="Trend + pullback + bullish confirmation.";
+ return;
 }
 
-if(move==="late" || move==="middle"){
+/* FINAL PUT */
+if(putTrend && putMomentum && move==="beginning" && putRSI){
 
-result.className="noTrade";
-result.innerHTML="⛔ NO TRADE<br><span style='font-size:17px'>MOVE TOO FAR</span>";
-return;
-
+ result.className="put";
+ result.innerHTML="🔴 PUT<br><span style='font-size:18px'>ENTRY: NEXT CANDLE</span>";
+ reason.innerHTML="Trend + pullback + bearish confirmation.";
+ return;
 }
 
+/* MIDDLE OF MOVE */
+if(move==="middle"){
+ result.className="noTrade";
+ result.innerHTML="⛔ NO TRADE";
+ reason.innerHTML="Price may already be in the middle of the move.";
+ return;
+}
+
+/* TREND DISAGREEMENT */
+if(!(callTrend || putTrend)){
+ result.className="wait";
+ result.innerHTML="⚪ WAIT";
+ reason.innerHTML="The three Supertrends do not agree.";
+ return;
+}
+
+/* MISSING CONFIRMATION */
 result.className="wait";
-result.innerHTML="⚪ WAIT<br><span style='font-size:17px'>NO ENTRY YET</span>";
-
+result.innerHTML="⚪ WAIT";
+reason.innerHTML="Confirmation conditions are incomplete.";
 }
 
 </script>
