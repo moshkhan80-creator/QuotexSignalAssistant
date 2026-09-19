@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotex Signal Assistant</title>
+
+<style>
+body{
+  margin:0;
+  background:#101318;
+  color:white;
+  font-family:Arial,sans-serif;
+  padding:15px;
+}
+
+h1{
+  text-align:center;
+  font-size:25px;
+  margin-bottom:5px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#aaa;
+  margin-bottom:20px;
+}
+
+.box{
+  background:#1b2028;
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:12px;
+}
+
+label{
+  display:block;
+  margin-bottom:7px;
+  font-weight:bold;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  background:#292f38;
+  color:white;
+  border:1px solid #555;
+  border-radius:8px;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  padding:16px;
+  margin-top:10px;
+  border:0;
+  border-radius:10px;
+  font-size:19px;
+  font-weight:bold;
+  background:#3b82f6;
+  color:white;
+}
+
+#result{
+  text-align:center;
+  padding:20px;
+  border-radius:12px;
+  margin-top:15px;
+  font-size:25px;
+  font-weight:bold;
+}
+
+.wait{
+  background:#3a3a22;
+  color:#ffd84d;
+}
+
+.call{
+  background:#123d25;
+  color:#4cff91;
+}
+
+.put{
+  background:#481d25;
+  color:#ff6878;
+}
+
+.noTrade{
+  background:#302035;
+  color:#d89cff;
+}
+
+.small{
+  text-align:center;
+  color:#aaa;
+  font-size:13px;
+  margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>QUOTEX SIGNAL ASSISTANT</h1>
+<div class="subtitle">1 Minute Entry System</div>
+
+<div class="box">
+
+<label>Supertrend 11,2</label>
+<select id="st11">
+<option value="up">UP</option>
+<option value="down">DOWN</option>
+</select>
+
+<label>Supertrend 10,3</label>
+<select id="st10">
+<option value="up">UP</option>
+<option value="down">DOWN</option>
+</select>
+
+<label>Supertrend 12,3</label>
+<select id="st12">
+<option value="up">UP</option>
+<option value="down">DOWN</option>
+</select>
+
+</div>
+
+<div class="box">
+
+<label>Pullback</label>
+<select id="pullback">
+<option value="yes">YES</option>
+<option value="no">NO</option>
+</select>
+
+<label>Confirmation Candle</label>
+<select id="candle">
+<option value="bull">BULLISH</option>
+<option value="bear">BEARISH</option>
+<option value="none">NONE</option>
+</select>
+
+<label>Move Position</label>
+<select id="move">
+<option value="beginning">BEGINNING</option>
+<option value="middle">MIDDLE</option>
+<option value="late">LATE</option>
+</select>
+
+</div>
+
+<div class="box">
+
+<label>Keltner / EMA</label>
+<select id="keltner">
+<option value="up">UP</option>
+<option value="down">DOWN</option>
+<option value="neutral">NEUTRAL</option>
+</select>
+
+<label>RSI</label>
+<select id="rsi">
+<option value="bull">BULLISH</option>
+<option value="bear">BEARISH</option>
+<option value="neutral">NEUTRAL</option>
+</select>
+
+</div>
+
+<button onclick="checkSignal()">CHECK ENTRY</button>
+
+<div id="result" class="wait">
+WAIT
+</div>
+
+<div class="small">
+Signal rules are for testing only. They do not guarantee a winning trade.
+</div>
+
+<script>
+
+function checkSignal(){
+
+let st11=document.getElementById("st11").value;
+let st10=document.getElementById("st10").value;
+let st12=document.getElementById("st12").value;
+
+let pullback=document.getElementById("pullback").value;
+let candle=document.getElementById("candle").value;
+let move=document.getElementById("move").value;
+
+let keltner=document.getElementById("keltner").value;
+let rsi=document.getElementById("rsi").value;
+
+let result=document.getElementById("result");
+
+result.className="wait";
+
+if(
+st11==="up" &&
+st10==="up" &&
+st12==="up" &&
+pullback==="yes" &&
+candle==="bull" &&
+move==="beginning" &&
+keltner==="up"
+){
+
+result.className="call";
+result.innerHTML="🟢 CALL<br><span style='font-size:18px'>ENTRY: NEXT CANDLE</span>";
+return;
+
+}
+
+if(
+st11==="down" &&
+st10==="down" &&
+st12==="down" &&
+pullback==="yes" &&
+candle==="bear" &&
+move==="beginning" &&
+keltner==="down"
+){
+
+result.className="put";
+result.innerHTML="🔴 PUT<br><span style='font-size:18px'>ENTRY: NEXT CANDLE</span>";
+return;
+
+}
+
+if(move==="late" || move==="middle"){
+
+result.className="noTrade";
+result.innerHTML="⛔ NO TRADE<br><span style='font-size:17px'>MOVE TOO FAR</span>";
+return;
+
+}
+
+result.className="wait";
+result.innerHTML="⚪ WAIT<br><span style='font-size:17px'>NO ENTRY YET</span>";
+
+}
+
+</script>
+
+</body>
+</html>
